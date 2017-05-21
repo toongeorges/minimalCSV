@@ -1,7 +1,7 @@
 # minimalCSV
 Minimal Java code to parse CSV or a similar format
 
-##Common Usage
+## Common Usage
 
 ```java
 Reader csvReader = ...;
@@ -13,7 +13,7 @@ for (List<String> line = iterator.readLine(); line != null; line = iterator.read
 }	
 ```
 
-##Low Level Usage
+## Low Level Usage
 
 ```java
 Reader csvReader = ...;
