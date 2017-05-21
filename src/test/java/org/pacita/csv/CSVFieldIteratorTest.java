@@ -246,6 +246,32 @@ public class CSVFieldIteratorTest {
         Assert.assertEquals(expected, actual);
     }
 
+    @Test
+    public void readLine() {
+        List<List<String>> expected = Arrays.asList(
+            Arrays.asList("b", "c"),
+            Arrays.asList("g", "h", "i"),
+            null
+        );
+
+        CSVFieldIterator iterator = new CSVFieldIterator(',', new StringReader(
+                "a,b,c\n"
+              + "d,e,f\n"
+              + "g,h,i"
+        ));
+
+        List<List<String>> actual = new ArrayList<>();
+        iterator.next();
+        actual.add(iterator.readLine());
+        iterator.next();
+        iterator.next();
+        iterator.next();
+        actual.add(iterator.readLine());
+        actual.add(iterator.readLine());
+
+        Assert.assertEquals(expected, actual);
+    }
+
     private List<List<String>> toValues(String input) {
         CSVFieldIterator iterator = new CSVFieldIterator(',', new StringReader(input));
 
