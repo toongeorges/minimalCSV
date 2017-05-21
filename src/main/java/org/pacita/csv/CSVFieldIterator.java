@@ -2,7 +2,9 @@ package org.pacita.csv;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -39,13 +41,26 @@ public class CSVFieldIterator implements Iterator<String> {
         do {
             readCharCloseSafe();
         } while ((c != '\n') && (c != -1));
+        separatorBeforeEOF = false;
         if (c == '\n') {
-            newLine = false;
-            separatorBeforeEOF = false;
+            newLine = true;
             readState = startField();
             return true;
-        }
+        } //else c == -1
+        newLine = false;
+        readState = ReadState.EOF;
         return false;
+    }
+
+    public List<String> readLine() {
+        if (hasNext()) {
+            List line = new ArrayList<>();
+            do {
+                line.add(next());
+            } while (hasNextForLine());
+            return line;
+        }
+        return null;
     }
 
     public boolean hasNextForLine() {

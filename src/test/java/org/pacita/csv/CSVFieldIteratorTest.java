@@ -147,17 +147,111 @@ public class CSVFieldIteratorTest {
         }
     }
 
+    @Test
+    public void skipHeader() {
+        List<List<String>> expected = Arrays.asList(
+            Arrays.asList("d", "e", "f"),
+            Arrays.asList("g", "h", "i")
+        );
+
+        CSVFieldIterator iterator = new CSVFieldIterator(',', new StringReader(
+                "a,b,c\n"
+              + "d,e,f\n"
+              + "g,h,i"
+        ));
+
+        Assert.assertTrue(iterator.skipLine());
+
+        List<List<String>> actual = new ArrayList<>();
+        for (List<String> line = iterator.readLine(); line != null; line = iterator.readLine()) {
+            actual.add(line);
+        }
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void skipMultipleLines() {
+        List<List<String>> expected = Arrays.asList(
+            Arrays.asList("g", "h", "i")
+        );
+
+        CSVFieldIterator iterator = new CSVFieldIterator(',', new StringReader(
+                "a,b,c\n"
+              + "d,e,f\n"
+              + "g,h,i"
+        ));
+
+        Assert.assertTrue(iterator.skipLine());
+        Assert.assertTrue(iterator.skipLine());
+
+        List<List<String>> actual = new ArrayList<>();
+        for (List<String> line = iterator.readLine(); line != null; line = iterator.readLine()) {
+            actual.add(line);
+        }
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void skipRandom() {
+        List<List<String>> expected = Arrays.asList(
+            Arrays.asList("a", "b", "c"),
+            Arrays.asList("d"),
+            Arrays.asList("g", "h", "i")
+        );
+
+        CSVFieldIterator iterator = new CSVFieldIterator(',', new StringReader(
+                "a,b,c\n"
+              + "d,e,f\n"
+              + "g,h,i"
+        ));
+
+        List<List<String>> actual = new ArrayList<>();
+        actual.add(iterator.readLine());
+        actual.add(Arrays.asList(iterator.next()));
+
+        Assert.assertTrue(iterator.skipLine());
+        Assert.assertFalse(iterator.hasNextForLine());
+
+        actual.add(iterator.readLine());
+
+        Assert.assertEquals(expected, actual);
+    }
+
+    @Test
+    public void skipEOF() {
+        List<List<String>> expected = Arrays.asList(
+            Arrays.asList("a", "b", "c"),
+            Arrays.asList("d", "e", "f"),
+            Arrays.asList("g")
+        );
+
+        CSVFieldIterator iterator = new CSVFieldIterator(',', new StringReader(
+                "a,b,c\n"
+              + "d,e,f\n"
+              + "g,h,i"
+        ));
+
+        List<List<String>> actual = new ArrayList<>();
+        actual.add(iterator.readLine());
+        actual.add(iterator.readLine());
+        actual.add(Arrays.asList(iterator.next()));
+
+        Assert.assertTrue(iterator.hasNext());
+        Assert.assertFalse(iterator.skipLine());
+        Assert.assertFalse(iterator.hasNext());
+        Assert.assertFalse(iterator.skipLine());
+
+        Assert.assertEquals(expected, actual);
+    }
+
     private List<List<String>> toValues(String input) {
         CSVFieldIterator iterator = new CSVFieldIterator(',', new StringReader(input));
 
         List<List<String>> lines = new ArrayList<>();
-        List<String> line = new ArrayList<>();
-        while (iterator.hasNext()) {
-            line.add(iterator.next());
-            if (!iterator.hasNextForLine()) {
-                lines.add(line);
-                line = new ArrayList<>();
-            }
+        for (List<String> line = iterator.readLine(); line != null; line = iterator.readLine()) {
+            lines.add(line);
         }
         return lines;
     }
